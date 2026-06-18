@@ -1,0 +1,16 @@
+data:
+  corpus_path: data/corpus/tiny_corpus.txt
+  metadata_path: data/corpus/metadata.json
+  train_ratio: 0.8
+  validation_ratio: 0.1
+  test_ratio: 0.1
+  block_size: 32
+  seed: 1337
+ngram:
+  n: 4
+  add_k: 0.1
+generation:
+  max_new_tokens: 120
+  temperature: 0.9
+  top_k: 20
+  top_p: 0.95

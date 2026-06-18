@@ -1,0 +1,7 @@
+{
+  "name": "Tiny Harbor Corpus",
+  "origin": "Original text written for this repository.",
+  "license": "CC0-1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "notes": "Small corpus for smoke tests and quick demonstrations. Replace it with a larger licensed .txt file for meaningful training metrics."
+}

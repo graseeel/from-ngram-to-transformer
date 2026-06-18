@@ -1,0 +1,29 @@
+data:
+  corpus_path: data/corpus/tiny_corpus.txt
+  metadata_path: data/corpus/metadata.json
+  train_ratio: 0.8
+  validation_ratio: 0.1
+  test_ratio: 0.1
+  block_size: 32
+  seed: 1337
+ngram:
+  n: 3
+  add_k: 0.1
+transformer:
+  block_size: 32
+  n_layer: 2
+  n_head: 2
+  n_embd: 64
+  dropout: 0.1
+training:
+  batch_size: 16
+  max_steps: 100
+  learning_rate: 0.0005
+  eval_interval: 25
+  grad_clip: 1.0
+  device: cpu
+generation:
+  max_new_tokens: 120
+  temperature: 0.9
+  top_k: 20
+  top_p: 0.95

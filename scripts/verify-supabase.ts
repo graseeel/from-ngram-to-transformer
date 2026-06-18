@@ -1,4 +1,5 @@
 import { readFile } from "node:fs/promises";
+import { execFileSync } from "node:child_process";
 
 const API_BASE = "https://api.supabase.com/v1";
 const REPO_SLUG = "from-ngram-to-transformer";
@@ -29,6 +30,14 @@ async function apiFetch<T>(path: string): Promise<T> {
   return (await response.json()) as T;
 }
 
+function projectsFromAuthenticatedCli(): Array<JsonObject> {
+  const output = execFileSync("supabase", ["projects", "list", "--output", "json"], {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  return JSON.parse(output) as Array<JsonObject>;
+}
+
 async function readManifest(): Promise<JsonObject | null> {
   try {
     return JSON.parse(await readFile(".supabase-project.json", "utf8")) as JsonObject;
@@ -48,7 +57,9 @@ async function main(): Promise<void> {
     throw new Error("SUPABASE_PROJECT_REF is required");
   }
 
-  const projects = await apiFetch<Array<JsonObject>>("/projects");
+  const projects = env("SUPABASE_ACCESS_TOKEN")
+    ? await apiFetch<Array<JsonObject>>("/projects")
+    : projectsFromAuthenticatedCli();
   const project = projects.find((item) => refOf(item) === expectedRef);
   if (!project) {
     throw new Error(`Project ref ${expectedRef} was not found in this Supabase account`);

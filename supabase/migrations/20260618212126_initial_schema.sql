@@ -217,8 +217,6 @@ for delete
 to authenticated
 using (owner_id = (select auth.uid()));
 
-alter table storage.objects enable row level security;
-
 create policy "private model artifacts are owned by uploader"
 on storage.objects
 for all

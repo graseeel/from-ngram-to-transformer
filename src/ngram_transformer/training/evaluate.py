@@ -52,7 +52,7 @@ def evaluate(
             "test_loss": mean_loss,
             "test_perplexity": perplexity_from_loss(mean_loss),
             "parameter_count": count_parameters(model),
-            "checkpoint_step": metadata["step"],
+            "checkpoint_step": metadata.step,
         }
 
     output_path.parent.mkdir(parents=True, exist_ok=True)

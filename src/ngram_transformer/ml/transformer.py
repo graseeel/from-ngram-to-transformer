@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import math
-from typing import cast
 
 import torch
 import torch.nn as nn
@@ -42,8 +41,7 @@ class CausalSelfAttention(nn.Module):
         v = v.view(batch_size, sequence_length, self.n_head, self.head_dim).transpose(1, 2)
 
         scores = (q @ k.transpose(-2, -1)) / math.sqrt(self.head_dim)
-        causal_mask = cast(torch.Tensor, self.causal_mask)
-        mask = causal_mask[:, :, :sequence_length, :sequence_length]
+        mask = self.get_buffer("causal_mask")[:, :, :sequence_length, :sequence_length]
         scores = scores.masked_fill(~mask, float("-inf"))
         attention = self.dropout(torch.softmax(scores, dim=-1))
         y = attention @ v

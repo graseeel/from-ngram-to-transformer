@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
 
 import torch
 from torch.utils.data import Dataset
@@ -50,14 +49,17 @@ def split_text(
     )
 
 
-def load_corpus_metadata(path: str | Path) -> dict[str, Any]:
+def load_corpus_metadata(path: str | Path) -> dict[str, object]:
     metadata_path = Path(path)
-    payload = json.loads(metadata_path.read_text(encoding="utf-8"))
+    payload: object = json.loads(metadata_path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise ValueError("corpus metadata must be a JSON object")
+    metadata = {str(key): value for key, value in payload.items()}
     required = {"name", "origin", "license"}
-    missing = required.difference(payload)
+    missing = required.difference(metadata)
     if missing:
         raise ValueError(f"corpus metadata missing required keys: {sorted(missing)}")
-    return payload
+    return metadata
 
 
 class TokenSequenceDataset(Dataset[tuple[torch.Tensor, torch.Tensor]]):

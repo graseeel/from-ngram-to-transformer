@@ -34,11 +34,11 @@ ngram-transformer-train-transformer = "ngram_transformer.training.train_transfor
 ngram-transformer-evaluate = "ngram_transformer.training.evaluate:main"
 
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/ngram_transformer"]
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [tool.ruff]
 line-length = 100

@@ -37,5 +37,5 @@ def test_transformer_checkpoint_roundtrip(tmp_path: Path) -> None:
 
     assert loaded_model.config.vocab_size == tokenizer.vocab_size
     assert loaded_tokenizer.decode(tokenizer.encode("abc")) == "abc"
-    assert metadata["step"] == 3
-    assert metadata["optimizer_state"] is not None
+    assert metadata.step == 3
+    assert metadata.optimizer_state is not None

@@ -17,7 +17,7 @@ def generation_insert_from_result(
         model_version_label=result.model_version_label,
         prompt=result.prompt,
         generated_text=result.generated_text,
-        generation_params=result.generation_params,
+        generation_params=result.generation_params.model_dump(),
         seed=request.seed,
     )
 

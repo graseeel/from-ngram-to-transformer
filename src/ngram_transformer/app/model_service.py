@@ -5,13 +5,32 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
 
-from ngram_transformer.app.schemas import GenerateRequest, GenerateResponse, ModelInfo, ModelName
+from ngram_transformer.app.schemas import (
+    GenerateRequest,
+    GenerateResponse,
+    GenerationParams,
+    ModelInfo,
+    ModelName,
+)
 from ngram_transformer.config import ProjectConfig, load_config
 from ngram_transformer.data.tokenizer import CharacterTokenizer
 from ngram_transformer.ml.checkpoints import load_transformer_checkpoint
 from ngram_transformer.ml.ngram import NGramLanguageModel
-from ngram_transformer.ml.transformer import TransformerLanguageModel
 from ngram_transformer.training.common import prepare_corpus
+
+
+class TokenGenerator(Protocol):
+    def generate(
+        self,
+        seed_ids: list[int],
+        max_new_tokens: int,
+        *,
+        temperature: float = 1.0,
+        top_k: int | None = None,
+        top_p: float | None = None,
+        seed: int | None = None,
+        greedy: bool = False,
+    ) -> list[int]: ...
 
 
 class ModelRunner(Protocol):
@@ -23,30 +42,20 @@ class ModelRunner(Protocol):
     def generate(self, request: GenerateRequest) -> GenerateResponse: ...
 
 
-def _generation_params(request: GenerateRequest) -> dict[str, object]:
-    return {
-        "max_new_tokens": request.max_new_tokens,
-        "temperature": request.temperature,
-        "top_k": request.top_k,
-        "top_p": request.top_p,
-        "seed": request.seed,
-        "greedy": request.greedy,
-    }
-
-
 @dataclass(frozen=True)
-class NGramRunner:
-    model: NGramLanguageModel
+class ReadyRunner:
+    name: ModelName
+    model: TokenGenerator
     tokenizer: CharacterTokenizer
     version_label: str
-    name: ModelName = "ngram"
+    notes: str
 
     def info(self) -> ModelInfo:
         return ModelInfo(
             name=self.name,
             ready=True,
             version_label=self.version_label,
-            notes="Add-k smoothed character N-gram model.",
+            notes=self.notes,
         )
 
     def generate(self, request: GenerateRequest) -> GenerateResponse:
@@ -65,42 +74,7 @@ class NGramRunner:
             model_version_label=self.version_label,
             prompt=request.prompt,
             generated_text=self.tokenizer.decode(output_ids),
-            generation_params=_generation_params(request),
-        )
-
-
-@dataclass(frozen=True)
-class TransformerRunner:
-    model: TransformerLanguageModel
-    tokenizer: CharacterTokenizer
-    version_label: str
-    name: ModelName = "transformer"
-
-    def info(self) -> ModelInfo:
-        return ModelInfo(
-            name=self.name,
-            ready=True,
-            version_label=self.version_label,
-            notes="Small decoder-only Transformer checkpoint.",
-        )
-
-    def generate(self, request: GenerateRequest) -> GenerateResponse:
-        prompt_ids = self.tokenizer.encode(request.prompt)
-        output_ids = self.model.generate(
-            prompt_ids,
-            request.max_new_tokens,
-            temperature=request.temperature,
-            top_k=request.top_k,
-            top_p=request.top_p,
-            seed=request.seed,
-            greedy=request.greedy,
-        )
-        return GenerateResponse(
-            model_name=self.name,
-            model_version_label=self.version_label,
-            prompt=request.prompt,
-            generated_text=self.tokenizer.decode(output_ids),
-            generation_params=_generation_params(request),
+            generation_params=GenerationParams.from_request(request),
         )
 
 
@@ -139,10 +113,12 @@ class TextGenerationService:
             ngram_version = f"ngram:n={config.ngram.n}:add_k={config.ngram.add_k}:in-memory"
 
         runners: dict[ModelName, ModelRunner] = {}
-        runners["ngram"] = NGramRunner(
+        runners["ngram"] = ReadyRunner(
+            name="ngram",
             model=ngram_model,
             tokenizer=prepared.tokenizer,
             version_label=ngram_version,
+            notes="Add-k smoothed character N-gram model.",
         )
         checkpoint_path = Path(
             os.getenv(
@@ -152,10 +128,12 @@ class TextGenerationService:
         )
         if checkpoint_path.exists():
             model, tokenizer, metadata = load_transformer_checkpoint(checkpoint_path)
-            runners["transformer"] = TransformerRunner(
+            runners["transformer"] = ReadyRunner(
+                name="transformer",
                 model=model,
                 tokenizer=tokenizer,
                 version_label=f"transformer:{checkpoint_path.as_posix()}:step={metadata.step}",
+                notes="Small decoder-only Transformer checkpoint.",
             )
         else:
             runners["transformer"] = UnavailableRunner(

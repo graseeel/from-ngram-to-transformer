@@ -48,3 +48,11 @@ def test_generate_without_saving() -> None:
     payload = response.json()
     assert payload["model_name"] == "ngram"
     assert payload["generated_text"].startswith("The old model")
+    assert payload["generation_params"] == {
+        "max_new_tokens": 8,
+        "temperature": 0.9,
+        "top_k": None,
+        "top_p": None,
+        "seed": 42,
+        "greedy": False,
+    }

@@ -40,13 +40,33 @@ class GenerateRequest(BaseModel):
         return stripped
 
 
+class GenerationParams(BaseModel):
+    max_new_tokens: int
+    temperature: float
+    top_k: int | None = None
+    top_p: float | None = None
+    seed: int | None = None
+    greedy: bool
+
+    @classmethod
+    def from_request(cls, request: GenerateRequest) -> GenerationParams:
+        return cls(
+            max_new_tokens=request.max_new_tokens,
+            temperature=request.temperature,
+            top_k=request.top_k,
+            top_p=request.top_p,
+            seed=request.seed,
+            greedy=request.greedy,
+        )
+
+
 class GenerateResponse(BaseModel):
     model_name: ModelName
     model_version_label: str
     prompt: str
     generated_text: str
     saved_generation_id: str | None = None
-    generation_params: dict[str, object]
+    generation_params: GenerationParams
 
 
 class ModelInfo(BaseModel):

@@ -72,6 +72,19 @@ uv run ngram-transformer-api
 
 Open `http://127.0.0.1:8000/demo` for the Gradio demo.
 
+If a command fails with `ModuleNotFoundError: No module named 'ngram_transformer'`, rebuild the editable install:
+
+```bash
+uv pip install --force-reinstall -e .
+```
+
+If the virtual environment is still stale, recreate it:
+
+```bash
+rm -rf .venv
+uv sync --extra dev --python 3.12
+```
+
 ## Supabase
 
 Local tests and development use the Supabase CLI:

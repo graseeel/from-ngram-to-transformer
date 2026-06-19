@@ -12,6 +12,15 @@ def test_health_and_models_endpoints() -> None:
     assert models[0]["ready"] is True
 
 
+def test_demo_mounts() -> None:
+    client = TestClient(app)
+
+    response = client.get("/demo/", follow_redirects=True)
+
+    assert response.status_code == 200
+    assert "From N-gram to Transformer" in response.text
+
+
 def test_generate_without_saving() -> None:
     client = TestClient(app)
     response = client.post(

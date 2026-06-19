@@ -70,7 +70,7 @@ uv run ngram-transformer-evaluate
 uv run ngram-transformer-api
 ```
 
-Open `http://127.0.0.1:8000/demo` for the Gradio demo.
+Open `http://127.0.0.1:8000/` for the Gradio demo.
 
 If a command fails with `ModuleNotFoundError: No module named 'ngram_transformer'`, rebuild the editable install:
 

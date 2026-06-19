@@ -219,6 +219,13 @@ body,
   line-height: 1.55;
 }
 
+.ngt-output textarea:disabled,
+.ngt-history textarea:disabled {
+  color: oklch(0.15 0.014 188) !important;
+  -webkit-text-fill-color: oklch(0.15 0.014 188) !important;
+  opacity: 1 !important;
+}
+
 .ngt-status-box {
   min-height: 44px;
 }

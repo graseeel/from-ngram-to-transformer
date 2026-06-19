@@ -4,6 +4,7 @@ from typing import Annotated
 
 import httpx
 from fastapi import Depends, FastAPI, Header, HTTPException, status
+from fastapi.responses import RedirectResponse
 
 from ngram_transformer.app.dependencies import (
     get_model_service,
@@ -24,6 +25,10 @@ def _http_error(exc: httpx.HTTPStatusError) -> HTTPException:
 
 def create_app() -> FastAPI:
     app = FastAPI(title="From N-gram to Transformer", version="0.1.0")
+
+    @app.get("/", include_in_schema=False)
+    def index() -> RedirectResponse:
+        return RedirectResponse(url="/demo/")
 
     @app.get("/health")
     def health() -> dict[str, str]:

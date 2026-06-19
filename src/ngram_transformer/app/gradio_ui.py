@@ -170,7 +170,7 @@ def mount_gradio(app: FastAPI) -> None:
                         top_k = gr.Slider(0, 100, value=20, step=1, label="Top-k")
                         top_p = gr.Slider(0, 1, value=0.95, step=0.05, label="Top-p")
                         seed = gr.Number(value=1337, label="Seed")
-                    save = gr.Checkbox(value=True, label="Save generation to Supabase history")
+                    save = gr.Checkbox(value=False, label="Save generation to Supabase history")
                     generate_button = gr.Button(
                         "Generate text",
                         variant="primary",

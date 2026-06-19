@@ -21,6 +21,15 @@ def test_demo_mounts() -> None:
     assert "From N-gram to Transformer" in response.text
 
 
+def test_root_redirects_to_demo() -> None:
+    client = TestClient(app)
+
+    response = client.get("/", follow_redirects=False)
+
+    assert response.status_code == 307
+    assert response.headers["location"] == "/demo/"
+
+
 def test_generate_without_saving() -> None:
     client = TestClient(app)
     response = client.post(
